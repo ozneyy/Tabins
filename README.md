@@ -19,7 +19,7 @@
 ## 🛠️ Installation
 
 ### 1. Extension Chrome
-1. Téléchargez ou clônez ce repository.
+1. Téléchargez / clônez ce repository ou téléchargez le ZIP [Tabin's](https://github.com/ozneyy/Tabins/releases/download/beta/Tabins.zip) sur chromium et sur firefox [Tabin's](https://github.com/ozneyy/Tabins/releases/download/beta/Tabins.xpi)  .
 2. Ouvrez Chrome et allez sur `chrome://extensions/`.
 3. Activez le **Mode développeur** (en haut à droite).
 4. Cliquez sur **Charger l'extension non empaquetée** et sélectionnez le dossier du projet.

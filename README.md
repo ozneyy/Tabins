@@ -1,13 +1,14 @@
-<p align="center">
-  <img src="icons/icon128.png" width="128" alt="Tabin's Logo">
-</p>
-
 # 🚀 Tabin's Chrome Extension
 
 **Tabin's** est une extension Chrome moderne et légère qui vous permet de synchroniser instantanément des onglets depuis votre iPhone vers votre navigateur, sans compte complexe, grâce à un système d'ID unique à 6 caractères.
 
 ![Version](https://img.shields.io/badge/version-1.1-blue.svg)
 ![License](https://img.shields.io/badge/license-MIT-green.svg)
+
+
+<p align="left">
+  <img src="icons/icon128.png" width="128" alt="Tabin's Logo">
+</p>
 
 ## ✨ Fonctionnalités
 

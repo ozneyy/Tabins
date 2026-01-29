@@ -12,7 +12,9 @@
     "default_popup": "index.html"
   },
   "background": {
-    "service_worker": "background.js"
+    "scripts": [
+      "background.js"
+    ]
   },
   "permissions": [
     "storage",
@@ -20,5 +22,16 @@
   ],
   "host_permissions": [
     "https://*.supabase.co/*"
-  ]
+  ],
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "tabins@nzoy.script",
+      "strict_min_version": "109.0",
+      "data_collection_permissions": {
+        "required": [
+          "none"
+        ]
+      }
+    }
+  }
 }

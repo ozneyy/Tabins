@@ -2,6 +2,7 @@ const listContainer = document.getElementById('list');
 const contextMenu = document.getElementById('context-menu');
 const ctxFavorite = document.getElementById('ctx-favorite');
 const ctxDelete = document.getElementById('ctx-delete');
+const ctxCopy = document.getElementById('ctx-copy');
 const setupScreen = document.getElementById('setup-screen');
 const mainView = document.getElementById('main-view');
 const idDisplay = document.getElementById('generated-id');
@@ -200,7 +201,7 @@ function renderTabs(tabs) {
     const domain = new URL(tab.url).hostname;
     const isFavorite = tab.is_favorite;
     return `
-      <a href="${tab.url}" target="_blank" class="tab-card ${isFavorite ? 'favorite' : ''}" data-id="${tab.id}">
+      <a href="${tab.url}" target="_blank" class="tab-card ${isFavorite ? 'favorite' : ''}" data-id="${tab.id}" data-url="${tab.url}">
         <img src="https://www.google.com/s2/favicons?domain=${domain}&sz=64" class="favicon">
         <div class="info">
           <div class="title-row">
@@ -231,23 +232,48 @@ function renderTabs(tabs) {
 
       // Positionnement du menu
       const { clientX, clientY } = e;
-      contextMenu.style.left = `${clientX}px`;
-      contextMenu.style.top = `${clientY}px`;
-      contextMenu.classList.remove('hidden');
+      contextMenu.classList.remove('hidden'); // On l'affiche d'abord pour avoir ses dimensions
 
-      // Ajustement si le menu dépasse
       const menuRect = contextMenu.getBoundingClientRect();
-      if (clientX + menuRect.width > window.innerWidth) {
-        contextMenu.style.left = `${clientX - menuRect.width}px`;
+      const margin = 10;
+
+      let top = clientY;
+      let left = clientX;
+
+      // Ajustement Horizontal
+      if (left + menuRect.width > window.innerWidth - margin) {
+        left = window.innerWidth - menuRect.width - margin;
       }
-      if (clientY + menuRect.height > window.innerHeight) {
-        contextMenu.style.top = `${clientY - menuRect.height}px`;
+      if (left < margin) left = margin;
+
+      // Ajustement Vertical
+      if (top + menuRect.height > window.innerHeight - margin) {
+        top = window.innerHeight - menuRect.height - margin;
       }
+      if (top < margin) top = margin;
+
+      contextMenu.style.left = `${left}px`;
+      contextMenu.style.top = `${top}px`;
     });
   });
 }
 
 // Actions du menu contextuel
+ctxCopy.addEventListener('click', async () => {
+  if (!selectedTabId) return;
+  const card = document.querySelector(`.tab-card[data-id="${selectedTabId}"]`);
+  const url = card.getAttribute('data-url');
+
+  try {
+    await navigator.clipboard.writeText(url);
+    // Optionnel : Notification ou changement d'icône temporaire pour feedback
+  } catch (err) {
+    console.error('Erreur lors de la copie:', err);
+  }
+
+  contextMenu.classList.add('hidden');
+});
+
 ctxFavorite.addEventListener('click', async () => {
   if (!selectedTabId) return;
   const card = document.querySelector(`.tab-card[data-id="${selectedTabId}"]`);

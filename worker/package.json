@@ -1,0 +1,15 @@
+{
+  "name": "tabins-worker",
+  "version": "1.0.0",
+  "description": "Backend API Cloudflare Worker + D1 pour Tabin's",
+  "main": "src/index.js",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "db:init": "wrangler d1 execute tabins-db --remote --file=./schema.sql",
+    "db:init:local": "wrangler d1 execute tabins-db --local --file=./schema.sql"
+  },
+  "devDependencies": {
+    "wrangler": "^3.109.2"
+  }
+}

@@ -1,0 +1,10 @@
+name = "tabins-api"
+main = "src/index.js"
+compatibility_date = "2024-01-01"
+
+# Binding D1 Database
+# Remplacez database_id après avoir exécuté : npx wrangler d1 create tabins-db
+[[d1_databases]]
+binding = "DB"
+database_name = "tabins-db"
+database_id = "534b0b5e-7000-4397-aaf6-0f61d4f7a1e2"

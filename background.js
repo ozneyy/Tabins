@@ -29,12 +29,8 @@ async function checkStartupCleanup() {
 async function performCleanup(userId) {
     console.log("🚀 Nettoyage en cours pour :", userId);
     try {
-        const response = await fetch(`${CONFIG.SUPABASE_URL}/rest/v1/synced_tabs?user_id=eq.${userId}&is_favorite=eq.false`, {
-            method: 'DELETE',
-            headers: {
-                'apikey': CONFIG.SUPABASE_KEY,
-                'Authorization': `Bearer ${CONFIG.SUPABASE_KEY}`
-            }
+        const response = await fetch(`${CONFIG.API_URL}/api/tabs?user_id=${userId}&keep_favorites=true`, {
+            method: 'DELETE'
         });
 
         if (response.ok) {
@@ -43,7 +39,7 @@ async function performCleanup(userId) {
             }
             console.log("✅ Nettoyage réussi.");
         } else {
-            console.error("❌ Erreur Supabase :", response.status);
+            console.error("❌ Erreur API Worker :", response.status);
         }
     } catch (error) {
         console.error("❌ Erreur réseau :", error);

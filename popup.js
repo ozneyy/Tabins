@@ -115,18 +115,17 @@ resetIdBtn.addEventListener('click', async () => {
 
 async function fetchTabs() {
   try {
-    // FILTRE par user_id
-    const response = await fetch(`${CONFIG.SUPABASE_URL}/rest/v1/synced_tabs?user_id=eq.${userId}&select=*&order=is_favorite.desc,created_at.desc`, {
-      headers: { 'apikey': CONFIG.SUPABASE_KEY, 'Authorization': `Bearer ${CONFIG.SUPABASE_KEY}` }
-    });
+    const response = await fetch(`${CONFIG.API_URL}/api/tabs?user_id=${userId}`);
     let tabs = await response.json();
+
+    if (!Array.isArray(tabs)) {
+      tabs = [];
+    }
 
     // Application de la règle de nettoyage
     const { cleanup_rule } = await chrome.storage.local.get(['cleanup_rule']);
     if (cleanup_rule && cleanup_rule.startsWith('max-')) {
       const limit = parseInt(cleanup_rule.split('-')[1]);
-      // On ne compte que les non-favoris pour la limite si on veut, 
-      // ou on supprime les plus anciens non-favoris au delà de la limite totale.
       if (tabs.length > limit) {
         // On récupère uniquement les non-favoris qui dépassent la limite
         const nonFavorites = tabs.filter(t => !t.is_favorite);
@@ -155,19 +154,19 @@ async function fetchTabs() {
 
     renderTabs(tabs);
   } catch (error) {
-    listContainer.innerHTML = '<div class="empty">Erreur de connexion</div>';
+    console.error("Erreur fetchTabs:", error);
+    listContainer.innerHTML = '<div class="empty">Erreur de connexion à l\'API</div>';
   }
 }
 
 async function clearAllTabs(refresh = true, keepFavorites = false) {
-  let url = `${CONFIG.SUPABASE_URL}/rest/v1/synced_tabs?user_id=eq.${userId}`;
+  let url = `${CONFIG.API_URL}/api/tabs?user_id=${userId}`;
   if (keepFavorites) {
-    url += `&is_favorite=eq.false`;
+    url += `&keep_favorites=true`;
   }
 
   await fetch(url, {
-    method: 'DELETE',
-    headers: { 'apikey': CONFIG.SUPABASE_KEY, 'Authorization': `Bearer ${CONFIG.SUPABASE_KEY}` }
+    method: 'DELETE'
   });
   if (refresh) fetchTabs();
 }
@@ -177,20 +176,6 @@ document.getElementById('cleanup-rule').addEventListener('change', async (e) => 
   await chrome.storage.local.set({ cleanup_rule: e.target.value });
 });
 
-// Dans showSettingsView, charger la règle actuelle
-function showSettingsView() {
-  setupScreen.classList.add('hidden');
-  mainView.classList.add('hidden');
-  settingsView.classList.remove('hidden');
-  settingsCurrentId.textContent = userId;
-
-  chrome.storage.local.get(['cleanup_rule']).then(data => {
-    if (data.cleanup_rule) {
-      document.getElementById('cleanup-rule').value = data.cleanup_rule;
-    }
-  });
-}
-
 function renderTabs(tabs) {
   if (tabs.length === 0) {
     listContainer.innerHTML = '<div class="empty">Aucun onglet. Utilisez votre raccourci iPhone avec l\'ID : <b>' + userId + '</b></div>';
@@ -198,8 +183,12 @@ function renderTabs(tabs) {
   }
 
   listContainer.innerHTML = tabs.map(tab => {
-    const domain = new URL(tab.url).hostname;
-    const isFavorite = tab.is_favorite;
+    let domain = 'lien';
+    try {
+      domain = new URL(tab.url).hostname;
+    } catch (e) {}
+
+    const isFavorite = Boolean(tab.is_favorite);
     return `
       <a href="${tab.url}" target="_blank" class="tab-card ${isFavorite ? 'favorite' : ''}" data-id="${tab.id}" data-url="${tab.url}">
         <img src="https://www.google.com/s2/favicons?domain=${domain}&sz=64" class="favicon">
@@ -232,7 +221,7 @@ function renderTabs(tabs) {
 
       // Positionnement du menu
       const { clientX, clientY } = e;
-      contextMenu.classList.remove('hidden'); // On l'affiche d'abord pour avoir ses dimensions
+      contextMenu.classList.remove('hidden');
 
       const menuRect = contextMenu.getBoundingClientRect();
       const margin = 10;
@@ -266,7 +255,6 @@ ctxCopy.addEventListener('click', async () => {
 
   try {
     await navigator.clipboard.writeText(url);
-    // Optionnel : Notification ou changement d'icône temporaire pour feedback
   } catch (err) {
     console.error('Erreur lors de la copie:', err);
   }
@@ -281,17 +269,16 @@ ctxFavorite.addEventListener('click', async () => {
   const targetState = !isCurrentlyFavorite;
 
   try {
-    await fetch(`${CONFIG.SUPABASE_URL}/rest/v1/synced_tabs?id=eq.${selectedTabId}&user_id=eq.${userId}`, {
+    await fetch(`${CONFIG.API_URL}/api/tabs/${selectedTabId}?user_id=${userId}`, {
       method: 'PATCH',
       headers: {
-        'apikey': CONFIG.SUPABASE_KEY,
-        'Authorization': `Bearer ${CONFIG.SUPABASE_KEY}`,
-        'Content-Type': 'application/json',
-        'Prefer': 'return=minimal'
+        'Content-Type': 'application/json'
       },
       body: JSON.stringify({ is_favorite: targetState })
     });
-  } catch (err) { }
+  } catch (err) {
+    console.error("Erreur favori:", err);
+  }
 
   contextMenu.classList.add('hidden');
   fetchTabs();
@@ -314,10 +301,13 @@ document.addEventListener('click', (e) => {
 });
 
 async function deleteTab(id, refresh = true) {
-  await fetch(`${CONFIG.SUPABASE_URL}/rest/v1/synced_tabs?id=eq.${id}&user_id=eq.${userId}`, {
-    method: 'DELETE',
-    headers: { 'apikey': CONFIG.SUPABASE_KEY, 'Authorization': `Bearer ${CONFIG.SUPABASE_KEY}` }
-  });
+  try {
+    await fetch(`${CONFIG.API_URL}/api/tabs/${id}?user_id=${userId}`, {
+      method: 'DELETE'
+    });
+  } catch (err) {
+    console.error("Erreur suppression:", err);
+  }
   if (refresh) fetchTabs();
 }
 
@@ -331,7 +321,6 @@ document.getElementById('refresh').addEventListener('click', () => {
   const btn = document.getElementById('refresh');
   btn.classList.add('spinning');
   fetchTabs();
-  // On retire la classe après l'animation (600ms dans le CSS)
   setTimeout(() => btn.classList.remove('spinning'), 600);
 });
 

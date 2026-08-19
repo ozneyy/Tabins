@@ -1,10 +1,9 @@
-# 🚀 Tabin's - Synchronisation d'onglets iOS vers Navigateur
+# 🚀 Tabin's Chrome & Firefox Extension
 
-**Tabin's** est une extension pour navigateurs (Chrome, Firefox, etc.) moderne et légère qui vous permet de synchroniser instantanément des onglets depuis votre iPhone vers votre ordinateur, sans compte complexe, grâce à un système d'ID unique à 6 caractères.
+**Tabin's** est une extension pour navigateur moderne et légère qui vous permet de synchroniser instantanément des onglets depuis votre iPhone vers votre navigateur, sans compte complexe, grâce à un système d'ID unique à 6 caractères.
 
 ![Version](https://img.shields.io/badge/version-1.2-blue.svg)
 ![License](https://img.shields.io/badge/license-MIT-green.svg)
-![Backend](https://img.shields.io/badge/backend-Cloudflare%20D1%20%2B%20Workers-orange.svg)
 
 <p align="left">
   <img src="icons/icon128.png" width="128" alt="Tabin's Logo">
@@ -19,87 +18,47 @@
     - Limite automatique (5 ou 10 liens).
     - Nettoyage quotidien (toutes les 24h).
     - Nettoyage à chaque démarrage du navigateur.
-- **⚡ Backend Serverless 100% Gratuit** : Fonctionne avec Cloudflare Workers + base SQLite D1 (aucune mise en pause de base de données).
+- **⚡ Synchronisation Instantanée** : Vos onglets sont synchronisés en temps réel et accessibles immédiatement.
 
 ---
 
-## 🛠️ Déploiement du Backend (Cloudflare Workers + D1)
+## 🛠️ Installation
 
-Le backend est entièrement serverless et gratuit.
+### 1. Extension Navigateur
 
-### Prérequis
-- [Node.js](https://nodejs.org/) installé.
-- Un compte gratuit [Cloudflare](https://dash.cloudflare.com/).
+#### Chromium (Chrome, Brave, Edge, Helium)
+1. Téléchargez / clonez ce dépôt ou récupérez le ZIP [Tabin's](https://github.com/ozneyy/Tabins/releases/download/beta/Tabins.zip).
+2. Ouvrez votre navigateur sur la page des extensions (ex: `chrome://extensions/`).
+3. Activez le **Mode développeur** (en haut à droite).
+4. Cliquez sur **Charger l'extension non empaquetée** et sélectionnez le dossier du projet.
 
-### Étapes de déploiement
-
-1. Ouvrez un terminal dans le dossier `worker/` :
-   ```bash
-   cd worker
-   npm install
-   ```
-
-2. Connectez-vous à Cloudflare :
-   ```bash
-   npx wrangler login
-   ```
-
-3. Créez la base de données D1 :
-   ```bash
-   npx wrangler d1 create tabins-db
-   ```
-   *Copiez le `database_id` affiché dans la console et collez-le dans `worker/wrangler.toml` à la ligne `database_id = "..."`.*
-
-4. Initialisez la table SQL dans D1 :
-   ```bash
-   npm run db:init
-   ```
-
-5. Déployez le Worker :
-   ```bash
-   npm run deploy
-   ```
-   *Notez l'URL générée (ex : `https://tabins-api.<votre-sous-domaine>.workers.dev`).*
-
-6. Renseignez cette URL dans le fichier `config.js` à la racine de l'extension :
-   ```javascript
-   var CONFIG = {
-     API_URL: "https://tabins-api.<votre-sous-domaine>.workers.dev"
-   };
-   ```
+#### Firefox
+1. Téléchargez le fichier [Tabin's XPI](https://github.com/ozneyy/Tabins/releases/download/beta/Tabins.xpi).
+2. Rendez-vous sur `about:debugging#/runtime/this-firefox`.
+3. Cliquez sur **Charger un module temporaire** et sélectionnez le fichier `tabins.xpi`.
 
 ---
 
-## 💻 Installation de l'Extension
+### 2. Raccourci iPhone
 
-### Chrome / Brave / Edge
-1. Ouvrez `chrome://extensions/`.
-2. Activez le **Mode développeur** (en haut à droite).
-3. Cliquez sur **Charger l'extension non empaquetée** et sélectionnez le dossier racine du projet.
-
-### Firefox
-1. Exécutez le script Python `python build_xpi.py` pour générer `tabins.xpi`.
-2. Ouvrez `about:debugging#/runtime/this-firefox` dans Firefox.
-3. Cliquez sur **Charger un module temporaire** et sélectionnez `tabins.xpi` ou `manifest.json`.
+1. Installez le raccourci sur votre iPhone : [Tabin's Sync](https://www.icloud.com/shortcuts/fd94936482ae4ba0b6280b0a5fb03834)
+2. Entrez votre ID de 6 caractères (affiché dans l'extension) lors de la configuration.
+3. Depuis Safari ou toute autre application, utilisez le menu de partage et sélectionnez **Tabin's Sync** pour envoyer un onglet.
 
 ---
 
-## 📱 Configuration du Raccourci iPhone
+## 🎨 Design
 
-Dans l'application **Raccourcis** sur iOS :
-
-1. Créez un raccourci qui reçoit l'entrée **URL de Safari / Partage**.
-2. Ajoutez l'action **Obtenir le contenu de l'URL** :
-   - **URL** : `https://tabins-api.<votre-sous-domaine>.workers.dev/api/tabs`
-   - **Méthode** : `POST`
-   - **En-têtes** :
-     - `Content-Type` : `application/json`
-   - **Corps de la requête** : JSON
-     - `user_id` : `VOTRE_ID_6_CARACTERES` (Texte)
-     - `url` : `Entrée du raccourci` (URL)
+Le projet utilise des variables CSS personnalisées pour un thème moderne :
+- **Turquoise & Spring Green** pour les accents.
+- **Animations fluides** pour les interactions et le chargement.
+- **Menu contextuel** (clic droit) pour gérer les favoris et la suppression.
 
 ---
 
 ## 📜 Licence
 
 Distribué sous la licence MIT. Voir `LICENSE` pour plus d'informations.
+
+---
+Développé avec ❤️ pour simplifier votre navigation multi-appareils.
